@@ -33,7 +33,7 @@
   scripts = {
     prepare-env = {
       exec = ''
-        echo 'Iniciando preparación del entorno myenv...'
+        echo 'Iniciando preparación del entorno django-env...'
         conda-shell -c "
           echo 'Creando el entorno myenv con Python 3.13...'
           conda create -n django-env python=3.13 anaconda -y
@@ -46,9 +46,9 @@
 
     install-django = {
       exec = ''
-        echo 'Iniciando instalación de Jupyter Lab...'
+        echo 'Iniciando instalación de Django...'
         conda-shell -c "
-          conda install -n myenv -c anaconda django -y
+          conda install -n django-env -c anaconda django -y
         "
       '';
       description = "Instala Django";
