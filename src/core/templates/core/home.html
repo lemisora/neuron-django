@@ -1,2 +1,235 @@
-{% extends 'base.html' %} {% block title %}Neuron activation{% endblock %}
-{%block content %} {% endblock %}
+{% extends 'base.html' %} {% block title %}Prototipo de Red Neuronal{%endblock%}
+{% block content %}
+<div class="bg-gray-900 text-gray-300 min-h-screen p-4 md:p-8 font-sans">
+    <div class="max-w-7xl mx-auto">
+        <header
+            class="flex flex-col md:flex-row justify-between items-center mb-8"
+        >
+            <h1 class="text-2xl font-bold text-white mb-4 md:mb-0">
+                NEURAL NETWORK
+            </h1>
+            <div class="flex items-center space-x-2">
+                <button
+                    class="bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 transition duration-300"
+                >
+                    CARGA CSV
+                </button>
+                <button
+                    class="bg-gray-700 text-gray-300 font-semibold py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-300"
+                >
+                    APLICAR
+                </button>
+                <button
+                    class="bg-gray-700 text-gray-300 font-semibold py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-300"
+                >
+                    ENTRENAR
+                </button>
+                <button
+                    class="bg-gray-700 text-gray-300 font-semibold py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-300"
+                >
+                    EVALUAR MODELO
+                </button>
+            </div>
+        </header>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg space-y-4">
+                <div>
+                    <label
+                        for="x-columns"
+                        class="block text-sm font-medium text-gray-400 mb-1"
+                        >X</label
+                    >
+                    <input
+                        type="text"
+                        id="x-columns"
+                        value="Columnas del csv (x, x1, x2)"
+                        class="w-full bg-gray-900 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label
+                            for="learning-rate"
+                            class="block text-sm font-medium text-gray-400 mb-1"
+                            >LEARNING RATE</label
+                        >
+                        <input
+                            type="text"
+                            id="learning-rate"
+                            value="0.001"
+                            class="w-full bg-gray-900 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                    </div>
+                    <div>
+                        <label
+                            for="test-size"
+                            class="block text-sm font-medium text-gray-400 mb-1"
+                            >TEST</label
+                        >
+                        <input
+                            type="text"
+                            id="test-size"
+                            value="80"
+                            class="w-full bg-gray-900 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg space-y-4">
+                <div>
+                    <label
+                        for="y-column"
+                        class="block text-sm font-medium text-gray-400 mb-1"
+                        >Y</label
+                    >
+                    <div class="flex space-x-2">
+                        <input
+                            type="text"
+                            id="y-column"
+                            value="Columnas del csv (x, x1)"
+                            class="w-2/3 bg-gray-900 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                        <select
+                            class="w-1/3 bg-gray-900 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        >
+                            <option>ReLU</option>
+                            <option>Sigmoid</option>
+                            <option>Linear</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label
+                            for="epoch"
+                            class="block text-sm font-medium text-gray-400 mb-1"
+                            >EPOCH</label
+                        >
+                        <input
+                            type="text"
+                            id="epoch"
+                            value="100"
+                            class="w-full bg-gray-900 border border-gray-700 rounded-md py-2 px-3 text-white focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        />
+                    </div>
+                    <div class="pt-6 space-y-2">
+                        <div class="flex items-center">
+                            <input
+                                id="normalize"
+                                type="checkbox"
+                                class="h-4 w-4 rounded border-gray-600 bg-gray-900 text-purple-600 focus:ring-purple-500"
+                            />
+                            <label
+                                for="normalize"
+                                class="ml-2 block text-sm text-gray-300"
+                                >Normalize</label
+                            >
+                        </div>
+                        <div class="flex items-center">
+                            <input
+                                id="round-output"
+                                type="checkbox"
+                                class="h-4 w-4 rounded border-gray-600 bg-gray-900 text-purple-600 focus:ring-purple-500"
+                            />
+                            <label
+                                for="round-output"
+                                class="ml-2 block text-sm text-gray-300"
+                                >Round Output</label
+                            >
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+                <h2 class="text-lg font-semibold text-white mb-4">
+                    HIDDEN LAYERS
+                </h2>
+                <div class="bg-gray-900 rounded-md p-3">
+                    <div
+                        class="grid grid-cols-3 text-sm font-medium text-gray-400 mb-2 px-2"
+                    >
+                        <span>#</span>
+                        <span>Nc</span>
+                        <span>Activación</span>
+                    </div>
+                    <div class="h-24"></div>
+                </div>
+                <div class="flex justify-center items-center space-x-4 mt-4">
+                    <button
+                        class="bg-gray-700 w-10 h-10 rounded-full text-xl font-bold flex items-center justify-center hover:bg-gray-600"
+                    >
+                        -
+                    </button>
+                    <button
+                        class="bg-gray-700 font-semibold py-2 px-6 rounded-lg hover:bg-gray-600"
+                    >
+                        CAPAS
+                    </button>
+                    <button
+                        class="bg-gray-700 w-10 h-10 rounded-full text-xl font-bold flex items-center justify-center hover:bg-gray-600"
+                    >
+                        +
+                    </button>
+                </div>
+            </div>
+
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg lg:col-span-2">
+                <h2 class="text-lg font-semibold text-white mb-4">Error</h2>
+                <div class="bg-gray-900 h-64 rounded-md p-4 relative">
+                    <div
+                        class="absolute inset-4 grid grid-cols-6 grid-rows-5 gap-0"
+                    >
+                        <div
+                            class="col-span-6 h-full border-t border-dashed border-gray-700"
+                        ></div>
+                        <div
+                            class="col-span-6 h-full border-t border-dashed border-gray-700"
+                        ></div>
+                        <div
+                            class="col-span-6 h-full border-t border-dashed border-gray-700"
+                        ></div>
+                        <div
+                            class="col-span-6 h-full border-t border-dashed border-gray-700"
+                        ></div>
+                        <div
+                            class="col-span-6 h-full border-t border-dashed border-gray-700"
+                        ></div>
+                        <div
+                            class="absolute inset-0 grid grid-cols-6 grid-rows-5 gap-0"
+                        >
+                            <div
+                                class="row-span-5 w-full border-l border-dashed border-gray-700"
+                            ></div>
+                            <div
+                                class="row-span-5 w-full border-l border-dashed border-gray-700"
+                            ></div>
+                            <div
+                                class="row-span-5 w-full border-l border-dashed border-gray-700"
+                            ></div>
+                            <div
+                                class="row-span-5 w-full border-l border-dashed border-gray-700"
+                            ></div>
+                            <div
+                                class="row-span-5 w-full border-l border-dashed border-gray-700"
+                            ></div>
+                            <div
+                                class="row-span-5 w-full border-l border-dashed border-gray-700"
+                            ></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg lg:col-span-2">
+                    <h2 class="text-lg font-semibold text-white mb-4">Network Topology</h2>
+                    <div class="bg-gray-900 h-64 rounded-md flex justify-around items-center text-xs text-gray-400">
+                        
+                    </div>
+                </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
