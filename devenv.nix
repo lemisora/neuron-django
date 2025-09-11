@@ -11,13 +11,19 @@
   packages = [
     pkgs.git
     pkgs.conda
+    pkgs.tailwindcss_3
   ];
 
   # https://devenv.sh/languages/
   # languages.rust.enable = true;
 
-  # JavaScript para la versión web de Jupyter
-  languages.javascript.enable = true;
+  # JavaScript para paquetes npm
+  languages.javascript = {
+    enable = true;
+    package = pkgs.nodejs_22;
+    npm.enable = true;
+    npm.install.enable = false;
+  };
 
   # https://devenv.sh/processes/
   # processes.cargo-watch.exec = "cargo-watch";
@@ -26,8 +32,11 @@
   # services.postgres.enable = true;
 
   enterShell = ''
-    conda-shell -c "python --version"
-    conda-shell -c "conda --version"
+    # Añade la carpeta de binarios local a tu PATH
+    export PATH="$PWD/node_modules/.bin:$PATH"
+
+    echo "✅ Entorno de Django y Node listo."
+    echo "🔧 Node: $(node -v) | npm: $(npm -v)"
   '';
 
   scripts = {
@@ -53,13 +62,18 @@
       '';
       description = "Instala Django";
     };
+
+    tailwindcss-serve.exec = ''
+      tailwindcss -i ./assets/css/input.css -o ./src/static/css/output.css --watch
+    '';
   };
 
   processes = {
-    "jupyter-lab".exec = ''
+    "server".exec = ''
       conda-shell -c "
-        conda activate myenv
-        jupyter lab
+        conda activate django-env
+        cd src
+        python manage.py runserver
       "
     '';
   };
