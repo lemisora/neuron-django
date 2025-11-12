@@ -11,16 +11,19 @@
             <div class="flex items-center space-x-2">
                 <button
                     class="bg-purple-600 text-white font-semibold py-2 px-4 rounded-lg shadow-md hover:bg-purple-700 transition duration-300"
+                    id="uploadCSV"
                 >
                     CARGA CSV
                 </button>
                 <button
                     class="bg-gray-700 text-gray-300 font-semibold py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-300"
+                    id="apply"
                 >
                     APLICAR
                 </button>
                 <button
                     class="bg-gray-700 text-gray-300 font-semibold py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-300"
+                    id="train"
                 >
                     ENTRENAR
                 </button>
@@ -232,4 +235,71 @@
         </div>
     </div>
 </div>
+<script>
+    let uploadedCSV = null;
+
+document.getElementById("uploadCSV").addEventListener("click", () => {
+    const input = document.createElement("input");
+    input.type = "file";
+    input.accept = ".csv";
+    input.onchange = e => {
+        const file = e.target.files[0];
+        const reader = new FileReader();
+        reader.onload = ev => {
+            uploadedCSV = ev.target.result;
+            alert("CSV cargado correctamente");
+        };
+        reader.readAsText(file);
+    };
+    input.click();
+});
+
+document.getElementById("apply").addEventListener("click", async () => {
+    if (!uploadedCSV) {
+        alert("Primero carga un CSV.");
+        return;
+    }
+
+    const params = {
+        csv_data: uploadedCSV,
+        learning_rate: document.getElementById("learning-rate").value,
+        epochs: document.getElementById("epoch").value,
+        x_columns: document.getElementById("x-columns").value,
+        y_column: document.getElementById("y-column").value,
+        normalize: document.getElementById("normalize").checked,
+        round_output: document.getElementById("round-output").checked,
+    };
+
+    // Guardar localmente antes de entrenar
+    localStorage.setItem("nn_params", JSON.stringify(params));
+    alert("Parámetros aplicados correctamente");
+});
+
+document.getElementById("train").addEventListener("click", () => {
+    const params = JSON.parse(localStorage.getItem("nn_params") || "{}");
+    if (!params.csv_data) {
+        alert("Debes aplicar primero los parámetros y cargar el CSV.");
+        return;
+    }
+
+    const socket = new WebSocket("ws://" + window.location.host + "/ws/train/");
+
+    socket.onopen = () => {
+        socket.send(JSON.stringify(params));
+    };
+
+    socket.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+        if (data.epoch) {
+            console.log(`Época ${data.epoch} → Error: ${data.error}`);
+        } else if (data.message) {
+            console.log(data.message);
+        } else if (data.error) {
+            console.error("Error:", data.error);
+        }
+    };
+});
+
+</script>
+
 {% endblock %}
