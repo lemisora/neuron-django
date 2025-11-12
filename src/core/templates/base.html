@@ -7,6 +7,7 @@
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <title>{% block title %}Entrenador de Neuronas{% endblock %}</title>
+        <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <link href="{% static 'css/output.css' %}" rel="stylesheet" />
     </head>
     <body class="bg-gray-100 dark:bg-gray-800">
@@ -106,16 +107,5 @@
         </nav>-->
 
         <main class="py-8 px-4">{% block content %} {% endblock %}</main>
-
-        <script>
-            const btn = document.querySelector("button.mobile-menu-button");
-            const menu = document.querySelector(".mobile-menu");
-
-            btn.addEventListener("click", () => {
-                menu.classList.toggle("hidden");
-            });
-
-            
-        </script>
     </body>
 </html>
