@@ -98,11 +98,17 @@ class TrainConsumer(WebsocketConsumer):
                     net.backPropagationC(y, learningRate=lr)
                 #Evaluete per epoch
                 results = []
-                trueValue = []
+                trueValue = []  
+                cont = 0
                 for x, y in zip(X_test, Y_test):
-                    results.append(net.forward(x))
+                    res = net.forward(x)
+                    results.append(res)
                     trueValue.append(y)
-
+                    if res == y:
+                        cont += 1
+                
+                accuracy = cont/len(X_test)
+                similarity = 1 - (np.mean(np.abs(results - trueValue)) / np.mean(np.abs(results)))
 
                 err = float(net.error(X, Y))
                 self.send(json.dumps({
