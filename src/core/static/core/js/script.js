@@ -12,6 +12,7 @@ let chart;
 let csvHeaders = []; 
 let xInput;
 let yInput;
+let layerCounter = 1;
 
 Plotly.purge('chart-container');
 initializeChart();
@@ -120,6 +121,99 @@ function checkData(){
     
 }
 
+
+//Add new row to hidden layers
+function addRow() {
+    const container = document.querySelector('.bg-gray-900.rounded-md.p-3 .h-24');
+    
+    // Create the row container with grid layout
+    const fila = document.createElement('div');
+    fila.className = 'grid grid-cols-3 text-sm text-white mb-2 px-2';
+    fila.setAttribute('data-numero', layerCounter);
+
+    // Columna 1: # (counter)
+    const col1 = document.createElement('div');
+    col1.className = 'flex items-center';
+    col1.textContent = layerCounter++;
+
+    // Columna 2: Nc (number input)
+    const col2 = document.createElement('div');
+    col2.className = 'flex items-center';
+    const input = document.createElement('input');
+    input.type = 'number';
+    input.min = '1';
+    input.value = '1';
+    input.className = 'w-full bg-gray-800 border border-gray-700 rounded-md py-1 px-2 text-white focus:outline-none focus:ring-1 focus:ring-purple-500';
+    col2.appendChild(input);
+
+    // Columna 3: Activación (select)
+    const col3 = document.createElement('div');
+    col3.className = 'flex items-center';
+    const select = document.createElement('select');
+    select.className = 'w-full bg-gray-800 border border-gray-700 rounded-md py-1 px-2 text-white focus:outline-none focus:ring-1 focus:ring-purple-500';
+    
+    // Using the same options as your existing select
+    ['ReLU', 'Sigmoid', 'Linear'].forEach(op => {
+        const option = document.createElement('option');
+        option.value = op.toLowerCase();
+        option.textContent = op;
+        select.appendChild(option);
+    });
+    col3.appendChild(select);
+
+    // Append all columns to the row
+    fila.appendChild(col1);
+    fila.appendChild(col2);
+    fila.appendChild(col3);
+
+    // Append the row to the container
+    container.appendChild(fila);
+}
+
+//Delete the last row
+function deleteRow() {
+    const container = document.querySelector('.bg-gray-900.rounded-md.p-3 .h-24');
+    const filas = container.querySelectorAll('div[data-numero]');
+    
+    if (filas.length > 0) {
+        const lastFila = filas[filas.length - 1];
+        container.removeChild(lastFila);
+        layerCounter--;
+    }
+}
+
+//Check Ale
+function actualizarContadores() {
+    const container = document.querySelector('.bg-gray-900.rounded-md.p-3 .h-24');
+    const filas = container.querySelectorAll('div[data-numero]');
+    
+    filas.forEach((fila, index) => {
+        const counterElement = fila.querySelector('div:first-child');
+        counterElement.textContent = index + 1;
+        fila.setAttribute('data-numero', index + 1);
+    });
+    
+    layerCounter = filas.length + 1;
+}
+
+// Function to get all layer data
+function obtenerCapas() {
+    const capas = [];
+    const container = document.querySelector('.bg-gray-900.rounded-md.p-3 .h-24');
+    const filas = container.querySelectorAll('div[data-numero]');
+    
+    filas.forEach(fila => {
+        const neurons = fila.querySelector('input[type="number"]').value;
+        const activation = fila.querySelector('select').value;
+        
+        capas.push({
+            neurons: parseInt(neurons),
+            activation: activation
+        });
+    });
+    
+    return capas;
+}
 
 //LEMIIIIII
 function initializeChart() {
