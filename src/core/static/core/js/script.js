@@ -238,38 +238,36 @@ function getActivations() {
 function initializeChart() {
     const layout = {
         title: {
-                text:'',
-                font: {
-                    color: '#f4f4f4' // color del título
-                }
-            },
-        xaxis: {
-            title: 'Epoca',
-            dtick: 1,
+            text: '',
             font: {
-                    color: '#f4f4f4' 
-            },
-            tickfont: { color: '#f4f4f4' },     
-            linecolor: '#f4f4f4',               
-            gridcolor: '#f4f4f455',             
-            zerolinecolor: '#f4f4f4',
+                color: '#D1D5DB' // Color de texto similar a text-gray-300
+            }
+        },
+        xaxis: {
+            title: 'Época',
+            font: { color: '#D1D5DB' },
+            tickfont: { color: '#9CA3AF' }, // Similar a text-gray-400
+            linecolor: '#4B5563',           // Similar a border-gray-600
+            gridcolor: '#374151',           // Similar a border-gray-700
+            zerolinecolor: '#4B5563',
         },
         yaxis: {
             title: 'Error',
             autorange: true,
-            font: {
-                color: '#f4f4f4' 
-            },
-            tickfont: { color: '#f4f4f4' },     
-            linecolor: '#f4f4f4',               
-            gridcolor: '#f4f4f455',             
-            zerolinecolor: '#f4f4f4',
+            font: { color: '#D1D5DB' },
+            tickfont: { color: '#9CA3AF' },
+            linecolor: '#4B5563',
+            gridcolor: '#374151',
+            zerolinecolor: '#4B5563',
         },
-        margin: {t: 30, b: 40, l: 50, r: 30},
-        paper_bgcolor: '#1A1A1D',   // fondo general
-        plot_bgcolor: '#1A1A1F',    // fondo del área de trazado
+        margin: { t: 10, b: 75, l: 30, r: 30 },
+        
+        // Fondo transparente para heredar el de Tailwind
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+
+        // Plotly se ajustará automáticamente al tamaño del div
         autosize: true,
-        height: window.innerHeight * 0.39
     };
     
     const data = [{
@@ -280,9 +278,13 @@ function initializeChart() {
         line: {color: '#cb6ce6', width: 2},
         marker: {size: 8}
     }];
+
+    // Configuración para un mejor comportamiento responsivo.
+    const config = { responsive: true };
     
-    chart = Plotly.newPlot('chart-container', data, layout);
+    chart = Plotly.newPlot('chart-container', data, layout, config);
 }
+
 
 //LEMIIIIII
 function drawNN(containerId, neurons, radius = 20, spacingY = 50, strokeWith="1.5") {
