@@ -63,7 +63,7 @@ document.getElementById("apply").addEventListener("click", async () => {
         normalize: document.getElementById("normalize").checked,
         round_output: document.getElementById("round-output").checked,
     };
-    drawNN("topolgyCanvas", [3,1])
+    drawNN("topolgyCanvas", getNeurons())
     console.log(getNeurons())
     console.log(getActivations())
 
@@ -157,7 +157,7 @@ function addRow() {
     // Using the same options as your existing select
     ['ReLU', 'Sigmoid', 'Linear'].forEach(op => {
         const option = document.createElement('option');
-        option.value = op.toLowerCase();
+        option.value = op;
         option.textContent = op;
         select.appendChild(option);
     });
@@ -221,7 +221,7 @@ function getActivations() {
     const activations = [];
     const container = document.querySelector('#layers-container');
     const filas = container.querySelectorAll('div[data-numero]');
-    
+    const lasyLayer = document.getElementById('lastLayerActivation')
     filas.forEach(fila => {
         const activation = fila.querySelector('select').value;
         
@@ -229,7 +229,7 @@ function getActivations() {
             activation
         );
     });
-    
+    activations.push(lasyLayer.value)
     return activations;
 }
 

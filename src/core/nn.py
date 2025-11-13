@@ -8,18 +8,18 @@ class layer:
     def __init__(self, nc, activation=None):
         alpha = 0.01
         function = {
-            "identidad": lambda x: x,
-            "sigmoide": lambda x: 1/(1+np.exp(-x)),
+            "Linear": lambda x: x,
+            "Sigmoid": lambda x: 1/(1+np.exp(-x)),
             "tanh": lambda x: np.tanh(x),
-            "relu": lambda x: np.maximum(0, x),
+            "ReLU": lambda x: np.maximum(0, x),
             "leaky_relu": lambda x: x if x > 0 else alpha * x,
             "pol": lambda x, w: x**w
         }
         functionD ={
-            "identidad": lambda x: 1,
-            "sigmoide": lambda x: (1/(1+np.exp(-x))) * (1 - (1/(1+np.exp(-x)))),
+            "Linear": lambda x: 1,
+            "Sigmoid": lambda x: (1/(1+np.exp(-x))) * (1 - (1/(1+np.exp(-x)))),
             "tanh": lambda x: 1 - np.tanh(x)**2,
-            "relu": lambda x: 1 if x > 0 else 0 ,
+            "ReLU": lambda x: 1 if x > 0 else 0 ,
             "leaky_relu": lambda x: 1 if x > 0 else alpha,
             "pol": lambda x, w: w*x**(w-1)
         }
@@ -56,7 +56,8 @@ class nn:
                 self.layers[l] = layer(layers[l], functions[l-1])
                 #Conectar las capas
                 self.layers[l-1].conect(self.layers[l])
-
+    def __str__(self):
+        return f"{self.layers}"
     def forward(self, patron):
         #Rercorrer las capas 
         for c in range(len(self.layers)):

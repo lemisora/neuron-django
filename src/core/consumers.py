@@ -33,6 +33,8 @@ class TrainConsumer(WebsocketConsumer):
         epochs = int(data.get("epochs", 10))
         x_columns = data.get("x_columns", "")
         y_column = data.get("y_column", "")
+        activations = data.get("activations", [])
+        neurons = data.get("neurons", [])
         normalize = data.get("normalize", False)
         round_output = data.get("round_output", False)
 
@@ -53,6 +55,7 @@ class TrainConsumer(WebsocketConsumer):
         self.training_config = {
             "X": X,
             "Y": Y,
+            "topology": {"neurons": neurons, "activations": activations},
             "learning_rate": learning_rate,
             "epochs": epochs,
             "normalize": normalize
@@ -71,11 +74,12 @@ class TrainConsumer(WebsocketConsumer):
         Y = self.training_config["Y"]
         lr = self.training_config["learning_rate"]
         epochs = self.training_config["epochs"]
+        topology = self.training_config["topology"]
         normalize = self.training_config["normalize"]
 
-        # 🧠 Initialize network topology (for example: 3 hidden layers)
-        net = nn([X.shape[1], 10, 1], ["tanh", "tanh", "identidad"])
-
+        #  Initialize network topology (for example: 3 hidden layers)
+        net = nn(topology["neurons"], topology["activations"])
+        print(net)
         try:
             for epoch in range(epochs):
                 for x, y in zip(X, Y):
