@@ -38,6 +38,7 @@ class TrainConsumer(WebsocketConsumer):
         normalize = data.get("normalize", False)
         round_output = data.get("round_output", False)
         test_size = data.get("test_size", 80)
+        mode = data.get("monde", 0)
 
         #  Parse CSV content
         csv_reader = csv.reader(io.StringIO(csv_content))
@@ -61,6 +62,7 @@ class TrainConsumer(WebsocketConsumer):
             "epochs": epochs,
             "normalize": normalize,
             "test_size": test_size,
+            "mode": mode,
         }
 
         # Start training thread
@@ -78,7 +80,7 @@ class TrainConsumer(WebsocketConsumer):
         topology = self.training_config["topology"]
         normalize = self.training_config["normalize"]
         test_size = self.training_config["test_size"]
-
+        mode = self.training_config["mode"]
         #SHUFFLE ARRAYS
         p = np.random.permutation(len(X))
         X_shuffled = X[p]
@@ -87,7 +89,6 @@ class TrainConsumer(WebsocketConsumer):
         Y_train = Y_shuffled[:int(test_size*len(X))]
         X_test = X_shuffled[int(test_size*len(X)):]
         Y_test = Y_shuffled[int(test_size*len(X)):]
-
         #  Initialize network topology (for example: 3 hidden layers)
         net = nn(topology["neurons"], topology["activations"])
         print(net)
@@ -107,15 +108,23 @@ class TrainConsumer(WebsocketConsumer):
                     if res == y:
                         cont += 1
                 
-                accuracy = cont/len(X_test)
-                similarity = 1 - (np.mean(np.abs(results - trueValue)) / np.mean(np.abs(results)))
-
+                
+                if mode == 0:
+                    results = np.array(results)
+                    trueValue = np.array(trueValue)
+                    accuracy = 1 - (np.mean(np.abs(results - trueValue)) / np.mean(np.abs(results)))
+                elif mode ==1:  
+                    accuracy = cont/len(X_test)
+                serializable_results = [r.tolist() if isinstance(r, np.ndarray) else r for r in results]
+                serializable_true = [t.tolist() if isinstance(t, np.ndarray) else t for t in trueValue]
+                
                 err = float(net.error(X, Y))
                 self.send(json.dumps({
                     "epoch": epoch + 1,
                     "error": round(err, 6),
-                    "results": results,
-                    "trueValue": trueValue,
+                    "results": serializable_results,
+                    "trueValue": serializable_true,
+                    "accuracy": round(float(accuracy*100), 2),
                 }))
             self.send(json.dumps({
                 "message": "Entrenamiento completado",

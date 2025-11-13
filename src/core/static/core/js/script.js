@@ -13,9 +13,14 @@ let csvHeaders = [];
 let xInput;
 let yInput;
 let layerCounter = 1;
+const regression = document.getElementById("regression");
+const classification = document.getElementById("classification");
+// Variable to store mode (0 = regression, 1 = classification)
+let mode = null;
 
 Plotly.purge('chart-container');
 initializeChart();
+regression.checked = true;
 
 document.getElementById("uploadCSV").addEventListener("click", () => {
     const input = document.createElement("input");
@@ -56,13 +61,14 @@ document.getElementById("apply").addEventListener("click", async () => {
         csv_data: uploadedCSV,
         learning_rate: document.getElementById("learning-rate").value,
         epochs: document.getElementById("epoch").value,
-        test_size: document.getElementById("test-size").value,
+        test_size: document.getElementById("test-size").value * 0.01,
         x_columns: document.getElementById("x-columns").value,
         y_column: document.getElementById("y-column").value,
         neurons: getNeurons(),
         activations: getActivations(),
         normalize: document.getElementById("normalize").checked,
         round_output: document.getElementById("round-output").checked,
+        mode: mode,
     };
     drawNN("topolgyCanvas", getNeurons())
     console.log(getNeurons())
@@ -104,8 +110,32 @@ document.getElementById("train").addEventListener("click", () => {
         } else if (data.error) {
             console.error("Error:", data.error);
         }
+        if(data.accuracy){
+            document.getElementById("accuracy").textContent = data.accuracy
+        }
     };
 });
+
+regression.addEventListener("change", () => {
+    if (regression.checked) {
+      classification.checked = false;
+      mode = 0;
+    } else {
+      mode = null;
+    }
+    console.log("Mode:", mode);
+});
+
+classification.addEventListener("change", () => {
+    if (classification.checked) {
+      regression.checked = false;
+      mode = 1;
+    } else {
+      mode = null;
+    }
+    console.log("Mode:", mode);
+});
+
 
 function checkData(){
     //Check headers x input
