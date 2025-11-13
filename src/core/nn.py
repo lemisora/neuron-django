@@ -57,7 +57,7 @@ class nn:
                 #Conectar las capas
                 self.layers[l-1].conect(self.layers[l])
     def __str__(self):
-        return f"{self.layers}"
+        return f"{[ j.n for j in  self.layers]}"
     def forward(self, patron):
         #Rercorrer las capas 
         for c in range(len(self.layers)):

@@ -64,7 +64,6 @@ class TrainConsumer(WebsocketConsumer):
         # Start training thread
         thread = threading.Thread(target=self.train_network)
         thread.start()
-        print(self.training_config)
 
     def train_network(self):
         """
