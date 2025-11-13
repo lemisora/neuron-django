@@ -130,17 +130,17 @@ function addRow() {
     const container = document.querySelector('#layers-container');
     // Create the row container with grid layout
     const fila = document.createElement('div');
-    fila.className = 'grid grid-cols-3 text-sm text-white mb-2 px-2';
+    fila.className = 'grid grid-cols-[auto,1fr,auto] text-sm text-white mb-2 gap-x-4';
     fila.setAttribute('data-numero', layerCounter);
 
     // Columna 1: # (counter)
     const col1 = document.createElement('div');
-    col1.className = 'flex items-center';
+    col1.className = 'flex justify-center items-center px-1';
     col1.textContent = layerCounter++;
 
     // Columna 2: Nc (number input)
     const col2 = document.createElement('div');
-    col2.className = 'flex items-center';
+    col2.className = 'flex justify-center items-center ml-4';
     const input = document.createElement('input');
     input.type = 'number';
     input.min = '1';
@@ -150,9 +150,9 @@ function addRow() {
 
     // Columna 3: Activación (select)
     const col3 = document.createElement('div');
-    col3.className = 'flex items-center';
+    col3.className = 'flex justify-center items-center';
     const select = document.createElement('select');
-    select.className = 'w-full bg-gray-800 border border-gray-700 rounded-md py-1 px-2 text-white focus:outline-none focus:ring-1 focus:ring-purple-500';
+    select.className = 'bg-gray-800 border border-gray-700 rounded-md py-1 px-2 text-white focus:outline-none focus:ring-1 focus:ring-purple-500';
     
     // Using the same options as your existing select
     ['ReLU', 'Sigmoid', 'Linear'].forEach(op => {
