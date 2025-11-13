@@ -6,106 +6,11 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>{% block title %}Entrenador de Neuronas{% endblock %}</title>
+        <title>{% block title %}{% endblock %}</title>
         <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
         <link href="{% static 'css/output.css' %}" rel="stylesheet" />
     </head>
     <body class="bg-gray-900">
-        <!-- Barra de navegación -->
-        <!--<nav class="bg-white shadow-lg dark:bg-gray-800">
-            <div class="max-w-7xl mx-auto px-4">
-                <div class="flex justify-between">
-                    <div class="flex space-x-7">
-                        <div>
-                            <a href="#" class="flex items-center py-4 px-2">
-                                <span class="font-bold text-gray-700 text-lg"
-                                    >Neuron Activation</span
-                                >
-                            </a>
-                        </div>
-                        <div class="hidden md:flex items-center space-x-1">
-                            <a
-                                href="#"
-                                class="py-4 px-2 text-green-500 border-b-4 border-green-500 font-semibold"
-                                >Cargar CSV</a
-                            >
-                            <a
-                                href="#"
-                                class="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-                                >Aplicar</a
-                            >
-                            <a
-                                href="#"
-                                class="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-                                >Entrenar</a
-                            >
-                            <a
-                                href="#"
-                                class="py-4 px-2 text-gray-500 font-semibold hover:text-green-500 transition duration-300"
-                                >Evaluar modelo</a
-                            >
-                        </div>
-                    </div>
-
-                    <!--<div class="hidden md:flex items-center space-x-3">
-                        <a
-                            href="#"
-                            class="py-2 px-3 bg-gray-200 text-gray-600 rounded-md hover:bg-gray-300 transition duration-300"
-                            >Login</a
-                        >
-                    </div>-->
-
-        <!--<div class="md:hidden flex items-center">
-                        <button class="outline-none mobile-menu-button">
-                            <svg
-                                class="w-6 h-6 text-gray-500"
-                                fill="none"
-                                stroke-linecap="round"
-                                stroke-linejoin="round"
-                                stroke-width="2"
-                                viewBox="0 0 24 24"
-                                stroke="currentColor"
-                            >
-                                <path d="M4 6h16M4 12h16m-7 6h7"></path>
-                            </svg>
-                        </button>
-                    </div>
-                </div>
-            </div>
-            <div class="hidden mobile-menu">
-                <ul class="">
-                    <li class="active">
-                        <a
-                            href="#"
-                            class="block text-sm px-2 py-4 text-white bg-green-500 font-semibold"
-                            >Cargar CSV</a
-                        >
-                    </li>
-                    <li>
-                        <a
-                            href="#"
-                            class="block text-sm px-2 py-4 hover:bg-green-500 transition duration-300"
-                            >Aplicar</a
-                        >
-                    </li>
-                    <li>
-                        <a
-                            href="#"
-                            class="block text-sm px-2 py-4 hover:bg-green-500 transition duration-300"
-                            >Entrenar</a
-                        >
-                    </li>
-                    <li>
-                        <a
-                            href="#"
-                            class="block text-sm px-2 py-4 hover:bg-green-500 transition duration-300"
-                            >Evaluar modelo</a
-                        >
-                    </li>
-                </ul>
-            </div>
-        </nav>-->
-
         <main class="py-8 px-4">{% block content %} {% endblock %}</main>
     </body>
 </html>
