@@ -37,6 +37,7 @@ class TrainConsumer(WebsocketConsumer):
         neurons = data.get("neurons", [])
         normalize = data.get("normalize", False)
         round_output = data.get("round_output", False)
+        test_size = data.get("test_size", 80)
 
         #  Parse CSV content
         csv_reader = csv.reader(io.StringIO(csv_content))
@@ -58,7 +59,8 @@ class TrainConsumer(WebsocketConsumer):
             "topology": {"neurons": neurons, "activations": activations},
             "learning_rate": learning_rate,
             "epochs": epochs,
-            "normalize": normalize
+            "normalize": normalize,
+            "test_size": test_size,
         }
 
         # Start training thread
@@ -75,20 +77,39 @@ class TrainConsumer(WebsocketConsumer):
         epochs = self.training_config["epochs"]
         topology = self.training_config["topology"]
         normalize = self.training_config["normalize"]
+        test_size = self.training_config["test_size"]
+
+        #SHUFFLE ARRAYS
+        p = np.random.permutation(len(X))
+        X_shuffled = X[p]
+        Y_shuffled = Y[p]
+        X_train = X_shuffled[:int(test_size*len(X))]
+        Y_train = Y_shuffled[:int(test_size*len(X))]
+        X_test = X_shuffled[int(test_size*len(X)):]
+        Y_test = Y_shuffled[int(test_size*len(X)):]
 
         #  Initialize network topology (for example: 3 hidden layers)
         net = nn(topology["neurons"], topology["activations"])
         print(net)
         try:
             for epoch in range(epochs):
-                for x, y in zip(X, Y):
+                for x, y in zip(X_train, Y_train):
                     net.forward(x)
                     net.backPropagationC(y, learningRate=lr)
+                #Evaluete per epoch
+                results = []
+                trueValue = []
+                for x, y in zip(X_test, Y_test):
+                    results.append(net.forward(x))
+                    trueValue.append(y)
+
 
                 err = float(net.error(X, Y))
                 self.send(json.dumps({
                     "epoch": epoch + 1,
-                    "error": round(err, 6)
+                    "error": round(err, 6),
+                    "results": results,
+                    "trueValue": trueValue,
                 }))
             self.send(json.dumps({
                 "message": "Entrenamiento completado",

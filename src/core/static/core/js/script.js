@@ -56,6 +56,7 @@ document.getElementById("apply").addEventListener("click", async () => {
         csv_data: uploadedCSV,
         learning_rate: document.getElementById("learning-rate").value,
         epochs: document.getElementById("epoch").value,
+        test_size: document.getElementById("test-size").value,
         x_columns: document.getElementById("x-columns").value,
         y_column: document.getElementById("y-column").value,
         neurons: getNeurons(),
