@@ -1,7 +1,7 @@
 {% extends 'base.html' %} {% block title %}Prototipo de Red Neuronal{%endblock%}
 {% load static %} {% block content %}
-<div class="bg-gray-900 text-gray-300 min-h-screen p-4 md:p-8 font-sans">
-    <div class="max-w-7xl mx-auto">
+<div class="bg-gray-900 text-gray-300 min-h-screen p-2 md:p-4 lg:p-8 font-sans">
+    <div class="max-w-screen-2xl mx-auto">
         <header
             class="flex flex-col md:flex-row justify-between items-center mb-8"
         >
@@ -36,8 +36,9 @@
             <span id="accuracy"> 00.0 </span> %
         </div>
 
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
             <div class="bg-gray-800 p-6 rounded-xl shadow-lg space-y-4">
+                <!-- Apartado para variables de entrada (x) -->
                 <div>
                     <label
                         for="x-columns"
@@ -79,9 +80,10 @@
                         />
                     </div>
                 </div>
-            </div>
 
-            <div class="bg-gray-800 p-6 rounded-xl shadow-lg space-y-4">
+                <hr class="border-gray-700" />
+
+                <!-- Apartado para clases objetivo (y) -->
                 <div>
                     <label
                         for="y-column"
@@ -146,7 +148,7 @@
                         </div>
                     </div>
                 </div>
-                
+
                 <div class="grid" grid-cols-2 gap-4>
                     <div class="flex items-center">
                         <input
@@ -156,10 +158,11 @@
                         />
                         <label
                             for="regression"
-                            class="ml-2 block text-sm text-gray-300">Regression</label
+                            class="ml-2 block text-sm text-gray-300"
+                            >Regression</label
                         >
                     </div>
-                    
+
                     <div class="flex items-center">
                         <input
                             id="classification"
@@ -168,7 +171,8 @@
                         />
                         <label
                             for="classification"
-                            class="ml-2 block text-sm text-gray-300">Classification</label
+                            class="ml-2 block text-sm text-gray-300"
+                            >Classification</label
                         >
                     </div>
                 </div>
@@ -212,7 +216,7 @@
                 </div>
             </div>
 
-            <div class="bg-gray-800 p-6 rounded-xl shadow-lg">
+            <div class="bg-gray-800 p-6 rounded-xl shadow-lg lg:col-span-2">
                 <h2 class="text-lg font-semibold text-white mb-4">
                     Data visualization
                 </h2>
