@@ -58,11 +58,14 @@ document.getElementById("apply").addEventListener("click", async () => {
         epochs: document.getElementById("epoch").value,
         x_columns: document.getElementById("x-columns").value,
         y_column: document.getElementById("y-column").value,
+        neurons: getNeurons(),
+        activations: getActivations(),
         normalize: document.getElementById("normalize").checked,
         round_output: document.getElementById("round-output").checked,
     };
     drawNN("topolgyCanvas", [3,1])
-    console.log(csvHeaders)
+    console.log(getNeurons())
+    console.log(getActivations())
 
     // Guardar localmente antes de entrenar
     localStorage.setItem("nn_params", JSON.stringify(params));
@@ -196,9 +199,10 @@ function actualizarContadores() {
     layerCounter = filas.length + 1;
 }
 
-// Function to get all layer data
-function obtenerCapas() {
+// Function to get neurons number
+function getNeurons() {
     const capas = [];
+    capas.push(xInput.length)
     const container = document.querySelector('.bg-gray-900.rounded-md.p-3 .h-24');
     const filas = container.querySelectorAll('div[data-numero]');
     
@@ -206,13 +210,28 @@ function obtenerCapas() {
         const neurons = fila.querySelector('input[type="number"]').value;
         const activation = fila.querySelector('select').value;
         
-        capas.push({
-            neurons: parseInt(neurons),
-            activation: activation
-        });
+        capas.push(
+            parseInt(neurons)
+        );
+    });
+    capas.push(yInput.length)
+    return capas;
+}
+
+function getActivations() {
+    const activations = [];
+    const container = document.querySelector('.bg-gray-900.rounded-md.p-3 .h-24');
+    const filas = container.querySelectorAll('div[data-numero]');
+    
+    filas.forEach(fila => {
+        const activation = fila.querySelector('select').value;
+        
+        activations.push(
+            activation
+        );
     });
     
-    return capas;
+    return activations;
 }
 
 //LEMIIIIII
