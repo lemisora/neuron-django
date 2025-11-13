@@ -27,13 +27,14 @@
                 >
                     ENTRENAR
                 </button>
-                <button
-                    class="bg-gray-700 text-gray-300 font-semibold py-2 px-4 rounded-lg hover:bg-gray-600 transition duration-300"
-                >
-                    EVALUAR MODELO
-                </button>
             </div>
         </header>
+
+        <div class="justify-end flex my-4">
+            <!-- Se colocará un texto que muestra el valor de exactitud (Accuracy)-->
+            <label class="mr-2">Accuracy: </label>
+            <span id="accuracy"> 00.0 </span> %
+        </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div class="bg-gray-800 p-6 rounded-xl shadow-lg space-y-4">
@@ -143,6 +144,32 @@
                                 >Round Output</label
                             >
                         </div>
+                    </div>
+                </div>
+                
+                <div class="grid" grid-cols-2 gap-4>
+                    <div class="flex items-center">
+                        <input
+                            id="regression"
+                            type="checkbox"
+                            class="h-4 w-4 rounded border-gray-600 bg-gray-900 text-purple-600 focus:ring-purple-500"
+                        />
+                        <label
+                            for="regression"
+                            class="ml-2 block text-sm text-gray-300">Regression</label
+                        >
+                    </div>
+                    
+                    <div class="flex items-center">
+                        <input
+                            id="classification"
+                            type="checkbox"
+                            class="h-4 w-4 rounded border-gray-600 bg-gray-900 text-purple-600 focus:ring-purple-500"
+                        />
+                        <label
+                            for="classification"
+                            class="ml-2 block text-sm text-gray-300">Classification</label
+                        >
                     </div>
                 </div>
             </div>
