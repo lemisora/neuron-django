@@ -127,8 +127,7 @@ function checkData(){
 
 //Add new row to hidden layers
 function addRow() {
-    const container = document.querySelector('.bg-gray-900.rounded-md.p-3 .h-24');
-    
+    const container = document.querySelector('#layers-container');
     // Create the row container with grid layout
     const fila = document.createElement('div');
     fila.className = 'grid grid-cols-3 text-sm text-white mb-2 px-2';
@@ -175,7 +174,7 @@ function addRow() {
 
 //Delete the last row
 function deleteRow() {
-    const container = document.querySelector('.bg-gray-900.rounded-md.p-3 .h-24');
+    const container = document.querySelector('#layers-container');
     const filas = container.querySelectorAll('div[data-numero]');
     
     if (filas.length > 0) {
@@ -187,7 +186,7 @@ function deleteRow() {
 
 //Check Ale
 function actualizarContadores() {
-    const container = document.querySelector('.bg-gray-900.rounded-md.p-3 .h-24');
+    const container = document.querySelector('#layers-container');
     const filas = container.querySelectorAll('div[data-numero]');
     
     filas.forEach((fila, index) => {
@@ -203,7 +202,7 @@ function actualizarContadores() {
 function getNeurons() {
     const capas = [];
     capas.push(xInput.length)
-    const container = document.querySelector('.bg-gray-900.rounded-md.p-3 .h-24');
+    const container = document.querySelector('#layers-container');
     const filas = container.querySelectorAll('div[data-numero]');
     
     filas.forEach(fila => {
@@ -220,7 +219,7 @@ function getNeurons() {
 
 function getActivations() {
     const activations = [];
-    const container = document.querySelector('.bg-gray-900.rounded-md.p-3 .h-24');
+    const container = document.querySelector('#layers-container');
     const filas = container.querySelectorAll('div[data-numero]');
     
     filas.forEach(fila => {
