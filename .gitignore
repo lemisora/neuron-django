@@ -1,9 +1,10 @@
 # Devenv
 devenv*
 devenv.local.nix
-
+.devenv.flake.nix
 # direnv
 .direnv
+.devenv
 
 # pre-commit
 .pre-commit-config.yaml
