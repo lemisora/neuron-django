@@ -14,6 +14,7 @@ btn.addEventListener("click", () => {
     2 en entrada 1 en salida
     1 en entrada 2 en salida 
     ---Clasificacion (puntos) limitar salida a 1 en clasificacion
+    1 en entrada 1 salida
     2 en entrada 1 salida
     3 en entrada 1 salida
     
@@ -105,7 +106,7 @@ document.getElementById("apply").addEventListener("click", () => {
             localStorage.setItem("nn_params", JSON.stringify(params));
 
             alert("Red creada correctamente");
-            chartVD = initializeChartV("chart-vd-container",1, data.x_test, data.results, ["one", "tow"], ["three"]);
+            chartVD = initializeChartV("chart-vd-container",1, data.x_test, data.results, xInput, yInput);
 
             // Optional: draw structure
             console.log(data.x_test)
@@ -228,6 +229,14 @@ function checkData(){
         alert("Header not found in csv y entry");
         return false;
     }
+
+    if(mode == 1){
+        if (yInput.length > 1){
+            alert("Classification mode suports only one output neuron")
+            return false
+        }
+    }
+
 
     return true;
     
@@ -371,7 +380,7 @@ function initializeChartV(containerId, mode, inVec, outVec, inVecNames, outVecNa
             },
             bgcolor: 'rgba(0,0,0,0)'
         };
-    } else {
+    } else if (inVec[0].length === 2){
         // 2D layout
         layout.xaxis = {
             title: inVecNames[0],
@@ -385,12 +394,30 @@ function initializeChartV(containerId, mode, inVec, outVec, inVecNames, outVecNa
             zerolinecolor: '#4B5563',
             linecolor: '#4B5563'
         };
+    }else{
+        layout.xaxis = {
+            title: inVecNames[0],
+            gridcolor: '#374151',
+            zerolinecolor: '#4B5563',
+            linecolor: '#4B5563'
+        };
+        layout.yaxis = {
+            title: " ",
+            gridcolor: '#374151',
+            zerolinecolor: '#4B5563',
+            linecolor: '#4B5563'
+        };
+
     }
 
     if (mode === 1) {
+        dummy = []
+        for (let i=0; i<inVec[0].length; i++){
+            dummy.push(0)
+        }
         trace = {
             x: inVec[0],
-            y: inVec[1],
+            y: dummy,
             mode: 'markers',
             type: 'scatter',
             marker: {
@@ -407,6 +434,9 @@ function initializeChartV(containerId, mode, inVec, outVec, inVecNames, outVecNa
             }
 
         };
+        if (inVec.length >= 2 && inVec[1]) {
+            trace.y = inVec[1];
+        }
         
         if (inVec.length >= 3 && inVec[2]) {
             trace.z = inVec[2];

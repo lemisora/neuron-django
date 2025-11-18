@@ -100,6 +100,7 @@ class TrainConsumer(WebsocketConsumer):
                     "epoch": epoch+1,
                     "error": round(err, 6),
                     "accuracy": round(float(accuracy*100), 2),
+                    "results": results,
                 }))
 
             # ------------------------------------------------------------
