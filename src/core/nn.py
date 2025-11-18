@@ -134,13 +134,20 @@ class nn:
 
 
 
-    def evaluate(self, x, normalizar=False):
-        if normalizar:
-            x = self.normalizar(x, self.normalizacion["x_min"], self.normalizacion["x_max"])
-            out = self.forward(x)
-            return self.desnormalizar_minmax(out, self.normalizacion["s_min"], self.normalizacion["s_max"])
-        else:
-            return self.forward(x)
+    def evaluate_vec(self, X, round_res=False):
+        act = []
+        for x in X:
+            res = self.forward(x)
+            print(res)
+            aux = []
+            for r in res:
+                if round_res:
+                    aux.append(round(r))
+                else:
+                    aux.append(r)
+            act.append(aux)
+        return act
+        
  
     
     def error(self, X, S):
@@ -210,6 +217,69 @@ class nn:
     @staticmethod
     def desnormalizar_minmax(x_norm, xmin, xmax, a=0, b=1):
         return ((x_norm - a) * (xmax - xmin)) / (b - a) + xmin
+    
+    def weights(self):
+        w = []
+        for l in self.layers[:-1]:
+            c = []
+            for i in l.weights:
+                g = []
+                for j in i:
+                    g.append(j)
+                c.append(g)
+            w.append(c)
+        return w
+
+    def biases(self):
+        b = []
+        for l in self.layers[1:]:
+            c = []
+            for i in l.bias:
+                c.append(i)
+            b.append(c)
+        return b
+    
+    def set_weights(self, Wlist):
+        """
+        Wlist is a list of weight matrices, same format returned by self.weights()
+        Example structure:
+        [
+            [[w00, w01, ...], [w10, w11, ...], ...],   # weights to layer 1
+            [[...], ...],                             # weights to layer 2
+            ...
+        ]
+        """
+        for i, W in enumerate(Wlist):
+            self.layers[i].weights = np.array(W, dtype=float)
+
+    def set_biases(self, Blist):
+        """
+        Blist is a list of bias vectors, same format returned by self.biases()
+        Example structure:
+        [
+            [b0, b1, ...],     # biases for layer 1
+            [b0, b1, ...],     # biases for layer 2
+            ...
+        ]
+        """
+        for i, B in enumerate(Blist):
+            self.layers[i + 1].bias = np.array(B, dtype=float)
+
+    @staticmethod
+    def split_Vec(X, Y, test_size=0.8):
+        p = np.random.permutation(len(X))
+        X = X[p]
+        Y = Y[p]
+
+        split = int(test_size * len(X))
+        X_train, Y_train = X[:split], Y[:split]
+        X_test,  Y_test  = X[split:],  Y[split:]
+
+        return X_train, Y_train, X_test, Y_test
+
+
+
+
 
 #class nnr:
  #   def __init__(self, layers, activation, ):

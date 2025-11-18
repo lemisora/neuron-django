@@ -1,4 +1,3 @@
-console.log("Hello");
 /*
 const btn = document.querySelector("button.mobile-menu-button");
 const menu = document.querySelector(".mobile-menu");
@@ -7,8 +6,21 @@ btn.addEventListener("click", () => {
     menu.classList.toggle("hidden");
 });*/
 
+/* 
+    Existen los siguientes casos
+    ---regresion
+    //Ejes
+    1 en entrada 1 en salida  -> default
+    2 en entrada 1 en salida
+    1 en entrada 2 en salida 
+    ---Clasificacion (puntos) limitar salida a 1 en clasificacion
+    2 en entrada 1 salida
+    3 en entrada 1 salida
+    
+*/
+
 let uploadedCSV = null;
-let chart; 
+
 let csvHeaders = []; 
 let xInput;
 let yInput;
@@ -17,9 +29,12 @@ const regression = document.getElementById("regression");
 const classification = document.getElementById("classification");
 // Variable to store mode (0 = regression, 1 = classification)
 let mode = null;
+const session_id = crypto.randomUUID();
 
-Plotly.purge('chart-container');
-initializeChart();
+Plotly.purge('chart-error-container');
+let chart = initializeChart("chart-error-container");
+let chartVD = initializeChart("chart-vd-container");
+
 regression.checked = true;
 
 document.getElementById("uploadCSV").addEventListener("click", () => {
@@ -47,6 +62,58 @@ document.getElementById("uploadCSV").addEventListener("click", () => {
     
 });
 
+document.getElementById("apply").addEventListener("click", () => {
+    if (!uploadedCSV) {
+        alert("Primero carga un CSV");
+        return;
+    }
+
+    if(!checkData()){
+        alert("check data")
+        return
+    }
+
+    const params = {
+        type: "init_net",
+        csv_data: uploadedCSV, 
+        learning_rate: document.getElementById("learning-rate").value,
+        epochs: document.getElementById("epoch").value,
+        test_size: document.getElementById("test-size").value * 0.01,
+        x_columns: document.getElementById("x-columns").value,
+        y_column: document.getElementById("y-column").value,
+        neurons: getNeurons(),
+        activations: getActivations(),
+        normalize: document.getElementById("normalize").checked,
+        round_output: document.getElementById("round-output").checked,
+        mode: mode,
+    };
+    console.log("clicked apply")
+    const socket = new WebSocket("ws://" + window.location.host + "/ws/train/" + session_id + "/");
+
+    socket.onopen = () => {
+        socket.send(JSON.stringify(params));
+    };
+
+    socket.onmessage = e => {
+        const data = JSON.parse(e.data);
+
+        if (data.type === "net_initialized") {
+            console.log("Net initialized:", data);
+
+            // Save to localStorage
+            localStorage.setItem("nn_init", JSON.stringify(data));
+            localStorage.setItem("nn_params", JSON.stringify(params));
+
+            alert("Red creada correctamente");
+            chartVD = initializeChartV("chart-vd-container",1, [[1,1,1],[1,2,3],[1,3,4] ], [0,1,0], ["one", "tow"], ["three"]);
+
+            // Optional: draw structure
+            console.log(data.topology.neurons)
+            drawNN("topolgyCanvas", data.topology.neurons);
+        }
+    };  
+});
+/*
 document.getElementById("apply").addEventListener("click", async () => {
     if (!uploadedCSV) {
         alert("Primero carga un CSV.");
@@ -71,13 +138,14 @@ document.getElementById("apply").addEventListener("click", async () => {
         mode: mode,
     };
     drawNN("topolgyCanvas", getNeurons())
+    chartVD = initializeChartV("chart-vd-container",1, [[1,1,1],[1,2,3],[1,3,4] ], [0,1,0], ["one", "tow"], ["three"]);
     console.log(getNeurons())
     console.log(getActivations())
 
     // Guardar localmente antes de entrenar
     localStorage.setItem("nn_params", JSON.stringify(params));
     alert("Parámetros aplicados correctamente");
-});
+});*/
 
 document.getElementById("train").addEventListener("click", () => {
     const params = JSON.parse(localStorage.getItem("nn_params") || "{}");
@@ -85,15 +153,16 @@ document.getElementById("train").addEventListener("click", () => {
         alert("Debes aplicar primero los parámetros y cargar el CSV.");
         return;
     }
+    params.type = "train";   // <<---- IMPORTANT
 
-    const socket = new WebSocket("ws://" + window.location.host + "/ws/train/");
+    const socket = new WebSocket("ws://" + window.location.host + "/ws/train/" + session_id + "/");
 
     socket.onopen = () => {
         socket.send(JSON.stringify(params));
     };
     // Reset chart
-    Plotly.purge('chart-container');
-    initializeChart();
+    Plotly.purge('chart-error-container');
+    initializeChart('chart-error-container');
 
     socket.onmessage = (event) => {
         
@@ -101,7 +170,7 @@ document.getElementById("train").addEventListener("click", () => {
         const data = JSON.parse(event.data);
         if (data.epoch) {
             console.log(`Época ${data.epoch} → Error: ${data.error}`);
-            Plotly.extendTraces('chart-container', {
+            Plotly.extendTraces('chart-error-container', {
                     x: [[data.epoch]],
                     y: [[data.error]]
                 }, [0]);
@@ -115,6 +184,8 @@ document.getElementById("train").addEventListener("click", () => {
         }
     };
 });
+
+
 
 regression.addEventListener("change", () => {
     if (regression.checked) {
@@ -154,7 +225,6 @@ function checkData(){
     return true;
     
 }
-
 
 //Add new row to hidden layers
 function addRow() {
@@ -215,19 +285,6 @@ function deleteRow() {
     }
 }
 
-//Check Ale
-function actualizarContadores() {
-    const container = document.querySelector('#layers-container');
-    const filas = container.querySelectorAll('div[data-numero]');
-    
-    filas.forEach((fila, index) => {
-        const counterElement = fila.querySelector('div:first-child');
-        counterElement.textContent = index + 1;
-        fila.setAttribute('data-numero', index + 1);
-    });
-    
-    layerCounter = filas.length + 1;
-}
 
 // Function to get neurons number
 function getNeurons() {
@@ -264,8 +321,71 @@ function getActivations() {
     return activations;
 }
 
-//LEMIIIIII
-function initializeChart() {
+function initializeChartV(conteinerId, mode, inVec, outVec, inVecNames, outVecNames){
+    let trace
+    let layout = {
+        scene: {
+            xaxis: { title: inVecNames[0] },
+            yaxis: { title: inVecNames[1] },
+            },
+        paper_bgcolor: 'rgba(0,0,0,0)',
+        plot_bgcolor: 'rgba(0,0,0,0)',
+    };
+    if( mode === 1){
+        trace = {
+            x: inVec[0],
+            y: inVec[1],
+            mode: 'markers',
+            type: 'scatter',
+            marker: {
+                size: 6,
+                color: outVec, // color points by z value
+                colorscale: 'Viridis',
+                opacity: 0.8
+            }
+        };
+        
+        if (inVec.length == 3){
+            trace.z = inVec[2] //add third dimention if inVec is 3d
+            trace.type = 'scatter3d'
+            Object.assign(layout.scene, {
+                zaxis: { title: inVecNames[2] }
+            });
+        }
+    }else{
+        trace = {
+            x: inVec[0],
+            y: outVec[0],
+            mode: 'lines',
+            type: 'scatter',
+            marker: {
+                size: 6,
+                color: outVec, // color points by z value
+                colorscale: 'Viridis',
+                opacity: 0.8
+                }
+            };
+        if (inVec.length == 2){
+            trace.z = inVec[1] //add third dimention if inVec is 3d
+            trace.type = 'surface'
+            Object.assign(layout.scene, {
+                zaxis: { title: inVecNames[2] }
+            });
+        }else if (outVec.length == 2){
+            trace.z = outVec[1] //add third dimention if inVec is 3d
+            trace.type = 'surface'
+            Object.assign(layout.scene, {
+                zaxis: { title: outVecNames[2] }
+            });
+        }
+
+    }
+    return Plotly.newPlot(conteinerId, [trace], layout);
+}
+
+//LEMIIIIII axis is a list with 
+function initializeChart(conteinerId) {
+   
     const layout = {
         title: {
             text: '',
@@ -312,7 +432,7 @@ function initializeChart() {
     // Configuración para un mejor comportamiento responsivo.
     const config = { responsive: true };
     
-    chart = Plotly.newPlot('chart-container', data, layout, config);
+    return Plotly.newPlot(conteinerId, data, layout, config);
 }
 
 

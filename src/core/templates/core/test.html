@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>3D Scatter Plot with Plotly</title>
+  <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+</head>
+<body>
+  <div id="plot3d" style="width:800px;height:600px;"></div>
+
+  <script>
+    // Generate some random data
+    const x = Array.from({length: 50}, () => Math.random() * 10 - 5);
+    const y = Array.from({length: 50}, () => Math.random() * 10 - 5);
+    const z = Array.from({length: 50}, () => Math.random() * 10 - 5);
+
+    // Create trace (data)
+    const trace = {
+      x: x,
+      y: y,
+      z: z,
+      mode: 'markers',
+      type: 'scatter3d',
+      marker: {
+        size: 6,
+        color: z, // color points by z value
+        colorscale: 'Viridis',
+        opacity: 0.8
+      }
+    };
+
+    // Layout for the plot
+    const layout = {
+      title: '3D Scatter Plot Example',
+      scene: {
+        xaxis: { title: 'X Axis' },
+        yaxis: { title: 'Y Axis' },
+        zaxis: { title: 'Z Axis' }
+      }
+    };
+
+    // Render the plot
+    Plotly.newPlot('plot3d', [trace], layout);
+  </script>
+</body>
+</html>
