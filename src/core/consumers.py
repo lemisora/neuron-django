@@ -21,7 +21,7 @@ class TrainConsumer(WebsocketConsumer):
         # ----------------------------------------------------------
         # 1) Initialize Network (Apply button)
         # ----------------------------------------------------------
-        print(data)
+        #print(data)
         if data.get("type") == "init_net":
             ans = self.initialize(data)
             self.send(json.dumps(ans))
@@ -57,7 +57,6 @@ class TrainConsumer(WebsocketConsumer):
 
         #Restore data
         cache_cfg = cache.get(f"nn_cfg_{self.session_id}")
-        print(self.session_id)
         cached_W = cache.get(f"nn_weights_{self.session_id}")
         cached_B = cache.get(f"nn_biases_{self.session_id}")
         neurons = cache_cfg["neurons"]
@@ -88,12 +87,18 @@ class TrainConsumer(WebsocketConsumer):
                 results = net.evaluate_vec(X_test, round_res=round_output, classification=mode)
                 if mode == 0:
                     results_np = np.array(results)
-                    true_np    = np.array(trueVal)
+                    true_np    = Y_test
                     accuracy = 1 - (np.mean(np.abs(results_np - true_np)) /
                                     np.mean(np.abs(results_np)))
-               
+                elif mode == 1:
+                    count =0 
+                    for r,y in zip(results, Y_test):
+                        print(y)
+                        if r == y:
+                            count +=1 
+                    accuracy = count/len(results)
 
-                accuracy = 10
+                
                 err = float(net.error(X_train, Y_train))
                 # Send live update send activations, weights and biases 
                 self.send(json.dumps({

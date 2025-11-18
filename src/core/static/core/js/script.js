@@ -29,7 +29,7 @@ let layerCounter = 1;
 const regression = document.getElementById("regression");
 const classification = document.getElementById("classification");
 // Variable to store mode (0 = regression, 1 = classification)
-let mode = null;
+let mode = 0;
 const session_id = crypto.randomUUID();
 
 Plotly.purge('chart-error-container');
@@ -106,7 +106,7 @@ document.getElementById("apply").addEventListener("click", () => {
             localStorage.setItem("nn_params", JSON.stringify(params));
 
             alert("Red creada correctamente");
-            chartVD = initializeChartV("chart-vd-container",1, data.x_test, data.results, xInput, yInput);
+            chartVD = initializeChartV("chart-vd-container", mode, data.x_test, data.results, xInput, yInput);
 
             // Optional: draw structure
             console.log(data.x_test)
@@ -356,60 +356,6 @@ function initializeChartV(containerId, mode, inVec, outVec, inVecNames, outVecNa
         [1, '#6D28D9'] // Deep purple
     ];
     // Add 3D scene configuration if needed
-    if (mode === 1 && inVec[0].length === 3) {
-        
-    
-        layout.scene = {
-            xaxis: { 
-                title: inVecNames[0],
-                backgroundcolor: 'rgba(0,0,0,0)',
-                gridcolor: '#374151',
-                zerolinecolor: '#4B5563'
-            },
-            yaxis: { 
-                title: inVecNames[1],
-                backgroundcolor: 'rgba(0,0,0,0)',
-                gridcolor: '#374151',
-                zerolinecolor: '#4B5563'
-            },
-            zaxis: { 
-                title: inVecNames[2],
-                backgroundcolor: 'rgba(0,0,0,0)',
-                gridcolor: '#374151',
-                zerolinecolor: '#4B5563'
-            },
-            bgcolor: 'rgba(0,0,0,0)'
-        };
-    } else if (inVec[0].length === 2){
-        // 2D layout
-        layout.xaxis = {
-            title: inVecNames[0],
-            gridcolor: '#374151',
-            zerolinecolor: '#4B5563',
-            linecolor: '#4B5563'
-        };
-        layout.yaxis = {
-            title: inVecNames[1],
-            gridcolor: '#374151',
-            zerolinecolor: '#4B5563',
-            linecolor: '#4B5563'
-        };
-    }else{
-        layout.xaxis = {
-            title: inVecNames[0],
-            gridcolor: '#374151',
-            zerolinecolor: '#4B5563',
-            linecolor: '#4B5563'
-        };
-        layout.yaxis = {
-            title: " ",
-            gridcolor: '#374151',
-            zerolinecolor: '#4B5563',
-            linecolor: '#4B5563'
-        };
-
-    }
-
     if (mode === 1) {
         dummy = []
         for (let i=0; i<inVec[0].length; i++){
@@ -434,16 +380,39 @@ function initializeChartV(containerId, mode, inVec, outVec, inVecNames, outVecNa
             }
 
         };
-        if (inVec.length >= 2 && inVec[1]) {
-            trace.y = inVec[1];
+        layout.scene = {
+            xaxis: { 
+                title: inVecNames[0],
+                backgroundcolor: 'rgba(0,0,0,0)',
+                gridcolor: '#374151',
+                zerolinecolor: '#4B5563'
+            },
+             yaxis: { 
+                title: "",
+                backgroundcolor: 'rgba(0,0,0,0)',
+                gridcolor: '#374151',
+                zerolinecolor: '#4B5563'
+            }, zaxis: { 
+                title: "",
+                backgroundcolor: 'rgba(0,0,0,0)',
+                gridcolor: '#374151',
+                zerolinecolor: '#4B5563'
+            },
+            bgcolor: 'rgba(0,0,0,0)'
         }
-        
-        if (inVec.length >= 3 && inVec[2]) {
+        if(inVec.length === 2){
+            layout.scene.yaxis.title = inVecNames[1];
+            trace.y = inVec[1];
+        }else if(inVec.length === 3){
+            layout.scene.yaxis.title = inVecNames[1];
+            trace.y = inVec[1];
+            layout.scene.zaxis.title = inVecNames[2];
             trace.z = inVec[2];
             trace.type = 'scatter3d';
         }
     } else {
-        // Regression mode traces
+        console.log("regresion mode")
+        //------------- Regression mode traces---------------
         trace = {
             x: inVec[0],
             y: outVec[0],
@@ -451,6 +420,9 @@ function initializeChartV(containerId, mode, inVec, outVec, inVecNames, outVecNa
             type: 'scatter',
             line: { color: '#cb6ce6', width: 2 }
         };
+        if(inVec.length == 2){
+
+        }
     }
 
     // Configuration for responsive behavior

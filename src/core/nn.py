@@ -138,7 +138,7 @@ class nn:
         act = []
         for x in X:
             res = self.forward(x)
-            print(res)
+            #print(res)
             aux = []
             for r in res:
                 if classification:
