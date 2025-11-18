@@ -5,6 +5,7 @@ from channels.generic.websocket import WebsocketConsumer
 import threading
 from django.core.cache import cache
 from .nn import nn
+import numpy as np
 
 
 class TrainConsumer(WebsocketConsumer):
@@ -84,28 +85,17 @@ class TrainConsumer(WebsocketConsumer):
                     net.forward(x)
                     net.backPropagationC(y, learningRate=lr)
                 # Evaluate
-                results = []
-                trueVal = []
-                count = 0
-                for x, y in zip(X_test, Y_test):
-                    res = net.forward(x)
-                    results.append(res)
-                    trueVal.append(y)
-                    if round_output:
-                        for r in res:
-                            r = int(r)
-                    if res == y:
-                        count += 1
+                results = net.evaluate_vec(X_test, round_res=round_output, classification=mode)
                 if mode == 0:
                     results_np = np.array(results)
                     true_np    = np.array(trueVal)
                     accuracy = 1 - (np.mean(np.abs(results_np - true_np)) /
                                     np.mean(np.abs(results_np)))
-                else:
-                    accuracy = count / len(X_test)
+               
 
+                accuracy = 10
                 err = float(net.error(X_train, Y_train))
-                # Send live update
+                # Send live update send activations, weights and biases 
                 self.send(json.dumps({
                     "epoch": epoch+1,
                     "error": round(err, 6),
@@ -150,6 +140,7 @@ class TrainConsumer(WebsocketConsumer):
             test_size = float(data.get("test_size", 0.8))
             normalize = data.get("normalize", False)
             round_Output = data.get("round_output", False)
+            mode = data.get("mode", 0)
 
 
             # Parse CSV
@@ -176,7 +167,7 @@ class TrainConsumer(WebsocketConsumer):
             # Create network
             net = nn(neurons, activations)
             print("red creada")
-            acts = net.evaluate_vec(X_test, round_Output)
+            acts = net.evaluate_vec(X_test, round_Output,classification=mode)
             print(acts)
             # Save only required data
             cache.set(f"nn_cfg_{self.session_id}", {"neurons": neurons, "activations": activations})
@@ -188,6 +179,16 @@ class TrainConsumer(WebsocketConsumer):
             cache.set(f"test_Y_{self.session_id}", Y_test)
 
             print(f"NN initialized and saved to cache (weights only). {self.session_id}")
+            #send x_test data to graph
+            #Serializate x_test 
+            size = len(X_test[0])
+            if size > 3:
+                size = 3
+            x_serializable = [[] for _ in range(size)]
+            for vec in X_test:
+                for i, x in enumerate(vec):
+                    x_serializable[i].append(x)
+            
 
             return {
                 "type": "net_initialized",
@@ -195,6 +196,7 @@ class TrainConsumer(WebsocketConsumer):
                 "weights": net.weights(),
                 "biases": net.biases(),
                 "results": acts,
+                "x_test": x_serializable,
             }
 
         except Exception as e:

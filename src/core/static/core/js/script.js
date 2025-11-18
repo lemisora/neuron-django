@@ -105,10 +105,11 @@ document.getElementById("apply").addEventListener("click", () => {
             localStorage.setItem("nn_params", JSON.stringify(params));
 
             alert("Red creada correctamente");
-            chartVD = initializeChartV("chart-vd-container",1, [[1,1,1],[1,2,3],[1,3,4] ], [0,1,0], ["one", "tow"], ["three"]);
+            chartVD = initializeChartV("chart-vd-container",1, data.x_test, data.results, ["one", "tow"], ["three"]);
 
             // Optional: draw structure
-            console.log(data.topology.neurons)
+            console.log(data.x_test)
+            console.log(data.results)
             drawNN("topolgyCanvas", data.topology.neurons);
         }
     };  
@@ -174,13 +175,19 @@ document.getElementById("train").addEventListener("click", () => {
                     x: [[data.epoch]],
                     y: [[data.error]]
                 }, [0]);
+            console.log(data.accuracy)
+            document.getElementById("accuracy").textContent = data.accuracy
+            // Update visualization chart with new results if available
+            if (data.results) {
+                if (mode === 1){
+                    updateChartColors(data.results);
+                }//Update regression
+               
+            }
         } else if (data.message) {
             console.log(data.message);
         } else if (data.error) {
             console.error("Error:", data.error);
-        }
-        if(data.accuracy){
-            document.getElementById("accuracy").textContent = data.accuracy
         }
     };
 });
@@ -321,66 +328,112 @@ function getActivations() {
     return activations;
 }
 
-function initializeChartV(conteinerId, mode, inVec, outVec, inVecNames, outVecNames){
-    let trace
+function initializeChartV(containerId, mode, inVec, outVec, inVecNames, outVecNames){
+    let trace;
+    
+    // Create a layout that uses the full container
     let layout = {
-        scene: {
-            xaxis: { title: inVecNames[0] },
-            yaxis: { title: inVecNames[1] },
-            },
+        autosize: true,
+        margin: { l: 50, r: 50, b: 50, t: 50, pad: 4 },
         paper_bgcolor: 'rgba(0,0,0,0)',
         plot_bgcolor: 'rgba(0,0,0,0)',
+        font: { color: '#D1D5DB' }
     };
-    if( mode === 1){
+    const smoothGreenPurple = [
+        [0, '#10B981'], // Emerald green
+        [0.3, '#34D399'], // Lighter green
+        [0.5, '#8B5CF6'], // Purple
+        [0.7, '#7C3AED'], // Darker purple
+        [1, '#6D28D9'] // Deep purple
+    ];
+    // Add 3D scene configuration if needed
+    if (mode === 1 && inVec[0].length === 3) {
+        
+    
+        layout.scene = {
+            xaxis: { 
+                title: inVecNames[0],
+                backgroundcolor: 'rgba(0,0,0,0)',
+                gridcolor: '#374151',
+                zerolinecolor: '#4B5563'
+            },
+            yaxis: { 
+                title: inVecNames[1],
+                backgroundcolor: 'rgba(0,0,0,0)',
+                gridcolor: '#374151',
+                zerolinecolor: '#4B5563'
+            },
+            zaxis: { 
+                title: inVecNames[2],
+                backgroundcolor: 'rgba(0,0,0,0)',
+                gridcolor: '#374151',
+                zerolinecolor: '#4B5563'
+            },
+            bgcolor: 'rgba(0,0,0,0)'
+        };
+    } else {
+        // 2D layout
+        layout.xaxis = {
+            title: inVecNames[0],
+            gridcolor: '#374151',
+            zerolinecolor: '#4B5563',
+            linecolor: '#4B5563'
+        };
+        layout.yaxis = {
+            title: inVecNames[1],
+            gridcolor: '#374151',
+            zerolinecolor: '#4B5563',
+            linecolor: '#4B5563'
+        };
+    }
+
+    if (mode === 1) {
         trace = {
             x: inVec[0],
             y: inVec[1],
             mode: 'markers',
             type: 'scatter',
             marker: {
-                size: 6,
-                color: outVec, // color points by z value
-                colorscale: 'Viridis',
-                opacity: 0.8
+                size: 8,
+                color: outVec,
+                colorscale: smoothGreenPurple, 
+                opacity: 0.8,
+                showscale: true, // Show color scale legend
+                colorbar: {
+                    thickness: 15,
+                    title: 'Value',
+                    titleside: 'right'
+                }
             }
+
         };
         
-        if (inVec.length == 3){
-            trace.z = inVec[2] //add third dimention if inVec is 3d
-            trace.type = 'scatter3d'
-            Object.assign(layout.scene, {
-                zaxis: { title: inVecNames[2] }
-            });
+        if (inVec.length >= 3 && inVec[2]) {
+            trace.z = inVec[2];
+            trace.type = 'scatter3d';
         }
-    }else{
+    } else {
+        // Regression mode traces
         trace = {
             x: inVec[0],
             y: outVec[0],
             mode: 'lines',
             type: 'scatter',
-            marker: {
-                size: 6,
-                color: outVec, // color points by z value
-                colorscale: 'Viridis',
-                opacity: 0.8
-                }
-            };
-        if (inVec.length == 2){
-            trace.z = inVec[1] //add third dimention if inVec is 3d
-            trace.type = 'surface'
-            Object.assign(layout.scene, {
-                zaxis: { title: inVecNames[2] }
-            });
-        }else if (outVec.length == 2){
-            trace.z = outVec[1] //add third dimention if inVec is 3d
-            trace.type = 'surface'
-            Object.assign(layout.scene, {
-                zaxis: { title: outVecNames[2] }
-            });
-        }
-
+            line: { color: '#cb6ce6', width: 2 }
+        };
     }
-    return Plotly.newPlot(conteinerId, [trace], layout);
+
+    // Configuration for responsive behavior
+    const config = {
+        responsive: true,
+        displayModeBar: true,
+        displaylogo: false,
+        modeBarButtonsToRemove: ['pan2d', 'lasso2d', 'select2d']
+    };
+
+    // Purge existing plot and create new one
+    Plotly.purge(containerId);
+    return Plotly.newPlot(containerId, [trace], layout, config);
 }
 
 //LEMIIIIII axis is a list with 
@@ -507,5 +560,21 @@ function drawNN(containerId, neurons, radius = 20, spacingY = 50, strokeWith="1.
         if (l >0) {
             weights.push(weight)
         }
+    }
+}
+
+// Function to update chart colors based on new results
+function updateChartColors(newResults) {
+    // Get current chart data
+    const chartElement = document.getElementById('chart-vd-container');
+    const currentData = chartElement.data;
+    
+    if (currentData && currentData.length > 0) {
+        // Update the marker colors with new results
+        const update = {
+            'marker.color': [newResults]
+        };
+        
+        Plotly.restyle('chart-vd-container', update, [0]);
     }
 }

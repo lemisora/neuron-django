@@ -134,18 +134,23 @@ class nn:
 
 
 
-    def evaluate_vec(self, X, round_res=False):
+    def evaluate_vec(self, X, round_res=False, classification= False):
         act = []
         for x in X:
             res = self.forward(x)
             print(res)
             aux = []
             for r in res:
-                if round_res:
-                    aux.append(round(r))
+                if classification:
+                    act.append(round(r))
                 else:
-                    aux.append(r)
-            act.append(aux)
+                    if round_res:
+                        aux.append(round(r))
+                    else:
+                        aux.append(r)
+            if not classification:
+                act.append(aux)
+
         return act
         
  
